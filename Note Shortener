@@ -1,0 +1,8 @@
+converter = input("Input: ")
+vowel = ("a", "e", "i", "o", "u", "A", "E", "I", "O", "U")
+for c in converter:
+    if c.casefold() in vowel:
+        print("", end="")
+    else:
+        print(c, end="")
+print("")
