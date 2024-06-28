@@ -1,0 +1,14 @@
+amount_due = 50
+# The amount of money for a bottle of coke
+while amount_due > 0:
+# if the amount due is over 0 than print amount due, and ask for coins
+    print("amount_due :", amount_due )
+    inserted_coin = int(input("Insert coin:"))
+    # Only accepted coins are 10, 25, 5
+    if inserted_coin in [10, 25, 5]:
+        # Once customer pays certain amount detuct from the amount due.
+        amount_due -= inserted_coin
+# If customer pays over 50 cents, than calculate abs from list of 10,25,5
+change_due = abs(amount_due)
+# Print the amount of change given to customer
+print("Change:", change_due)
