@@ -1,0 +1,25 @@
+def main():
+    x = fuel_in_fraction("Fraction: ")
+    print(x)
+
+def fuel_in_fraction(prompt):
+    while True:
+        try:
+            fuel = input(prompt)
+            x, y = fuel.split("/")
+            fuel_percent = round(int(x)/int(y)*100)
+            if int(y) == 0:
+                continue
+            elif int(x) > int(y):
+                continue
+            elif fuel_percent <= 1:
+                return("E")
+            elif 99 <= fuel_percent < 101:
+                return("F")
+            else:
+                return(fuel_percent)
+
+        except (ValueError, ZeroDivisionError):
+            pass
+        
+main()
