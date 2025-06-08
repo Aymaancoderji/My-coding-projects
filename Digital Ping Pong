@@ -1,0 +1,222 @@
+/**
+ * // Name: Aymaan Anhardeen
+ * Date: January: 13th, 2025
+ * Project overview: This project is a simple ping pong digitalised version. A ball moves randomly from bottom to top in a diagonal direction. It bounces off the right and left wall.
+**/
+
+var player1Score = 0; // Player 1 score is defined now, and will be used in the game to represent score.
+var player2Score = 0; // Player 2 score is defined now, and will be used later.
+var ballX = 170; // The ball X value as we will move it across the screen
+var ballY = 280; // The ball Y value as we will move it across the screen
+var ballSpeedX = 4;  // Ball speed in X direction horizontally. This is useful as we can make the ball go both ways.
+var ballSpeedY = 3;  // Ball speed in Y direction vertically
+var paddle1X = 90; // Player 1's paddle position horizontally
+var paddle2X = 320; // Player 2's paddle position horizontally
+var paddleWidth = 60; // The width of the paddles
+var paddleHeight = 10; // The height of both paddles
+var gameOver = true;  // Game starts in the "welcome" screen cause it wouldn't make sense otherwise. Game hasn't started
+var showInstructions = false;  // Instruction screen value stated to false so it doesn't start there.
+var paddleSpeed = 8;  // Paddle movement speed
+// Manually track whether the keys are pressed.
+var isAKeyPressed = false;  // Player 1 move left false until pressed
+var isDKeyPressed = false;  // Player 1 move right false until pressed
+var isLeftArrowPressed = false;  // Player 2 move left false until pressed
+var isRightArrowPressed = false;  // Player 2 move right false until pressed
+
+// Function to reset ball to the center of the screen
+function resetBall() {
+    ballX = width / 2;
+    ballY = height / 2;
+    ballSpeedX = random(2, 4) * (random() > 0.5 ? 1 : -1);  // Randomize direction on reset
+    ballSpeedY = random(2, 4) * (random() > 0.5 ? 1 : -1);
+}
+
+// Function to handle key controls
+function keyControl() {
+    if (!gameOver) {
+        // Player 1 controls (A and D keys)
+        if (isAKeyPressed) {  // A key (left)
+            paddle1X -= paddleSpeed;  // Move Player 1's paddle left
+        }
+        if (isDKeyPressed) {  // D key (right)
+            paddle1X += paddleSpeed;  // Move Player 1's paddle right
+        }
+
+        // Player 2 controls (Left and Right arrow keys using keyCode)
+        if (isLeftArrowPressed) {  // Left Arrow key
+            paddle2X -= paddleSpeed;  // Move Player 2's paddle left
+        }
+        if (isRightArrowPressed) {  // Right Arrow key
+            paddle2X += paddleSpeed;  // Move Player 2's paddle right
+        }
+    }
+}
+
+// Constrain paddles within screen boundaries cause the game won't work without that.
+function constrainPaddles() {
+    paddle1X = constrain(paddle1X, 0, width - paddleWidth);
+    paddle2X = constrain(paddle2X, 0, width - paddleWidth);
+}
+
+// Function to show the win screen
+function showWinScreen(winnerText) {
+    background(255, 0, 0);  // Red background for win screen
+    textSize(30);  // Larger text size for the win screen
+    textAlign(CENTER);
+
+    // Display winner message
+    text(winnerText, width / 2, height / 3);
+
+    // Option to restart the game
+    text("Press Space To Restart.", width / 2, height / 2);
+
+    // Check if space is pressed to restart the game
+    if (keyCode === 32) {  // Space key
+        gameOver = true;  // Go back to the welcome screen
+        player1Score = 0;  // Reset scores
+        player2Score = 0;
+    }
+}
+
+// Main game drawing function
+draw = function() {
+    // Welcome screen
+    if (gameOver && !showInstructions) {
+        background(0, 0, 0);  // Black background for welcome screen
+        textSize(15);  // Small text size
+        textAlign(CENTER);
+
+        // Prevent the text from going off the screen by limiting the y-position
+        text("Welcome To Ping Pong", width / 2, Math.min(height / 4, 375));
+        text("Press Shift To Play, Or Space For Instructions.", width / 2, Math.min(height / 2, 375));
+    }
+    // Instruction screen
+    else if (showInstructions) {
+        background(0, 0, 0);  // Black background for instructions screen
+        textSize(15);  // Smaller text size
+        textAlign(CENTER);
+        text("Ping Pong", width / 2, 30);
+        text("Keys P1: A, D  Keys P2: Left, Right.", width / 2, 70);
+        text("Shift Than Space To Play", width / 2, 120);
+        text("How To Play:", width / 2, 180);
+        text("A ball moves from one side of the screen to the other side and you have to use your paddle to deflect it. Don't let the ball go out of the screen!", 100, 250, 220, 370);
+    }
+    // Main game
+    else {
+        background(0, 0, 0);  // Black background for the game
+
+        // Draw paddles
+        rect(paddle1X, height - paddleHeight, paddleWidth, paddleHeight);  // Player 1's paddle
+        rect(paddle2X, 0, paddleWidth, paddleHeight);  // Player 2's paddle
+
+        // Draw ball
+        ellipse(ballX, ballY, 30, 30);
+
+        // Ball movement
+        ballX += ballSpeedX;
+        ballY += ballSpeedY;
+
+        // Ball collision with top wall (Player 2 scores)
+        if (ballY <= 0) {
+            player2Score++;  // Player 2 scores
+            resetBall();  // Reset ball position
+        }
+
+        // Ball collision with bottom wall (Player 1 scores)
+        if (ballY >= height) {
+            player1Score++;  // Player 1 scores
+            resetBall();  // Reset ball position
+        }
+
+        // Ball collision with paddles (Player 1 and Player 2)
+        // Player 1 paddle (Bottom paddle)
+        if (ballY + 10 >= height - paddleHeight && ballY - 10 <= height && ballX >= paddle1X && ballX <= paddle1X + paddleWidth) {
+            ballSpeedY *= -1;  // Reverse direction
+            ballSpeedX += random(-1, 1);  // Add randomness to horizontal direction when bouncing
+        }
+
+        // Player 2 paddle (Top paddle)
+        if (ballY - 10 <= paddleHeight && ballY + 10 >= 0 && ballX >= paddle2X && ballX <= paddle2X + paddleWidth) {
+            ballSpeedY *= -1;  // Reverse direction
+            ballSpeedX += random(-1, 1);  // Add randomness to horizontal direction when bouncing
+        }
+
+        // Ball collision with left wall
+        if (ballX <= 0) {
+            ballSpeedX *= -1;  // Reverse direction to bounce off the wall
+        }
+
+        // Ball collision with right wall
+        if (ballX >= width) {
+            ballSpeedX *= -1;  // Reverse direction to bounce off the wall
+        }
+
+        // Display scores
+        textSize(15);  // Smaller text size
+        textAlign(LEFT);
+        text("Player 1: " + player1Score, 20, 20);
+        text("Player 2: " + player2Score, 20, 40);
+
+        // Check for winning condition
+        if (player1Score >= 3) {
+            showWinScreen("Player 1 Wins");
+        }
+        if (player2Score >= 3) {
+            showWinScreen("Player 2 Wins");
+        }
+    }
+
+    // Call key controls and constrain paddles within the screen boundaries
+    keyControl();
+    constrainPaddles();
+};
+
+// Handle key presses to control the paddles and show instructions
+function keyPressed() {
+    if (keyCode === 16) {  // Shift key
+        if (gameOver) {
+            gameOver = false;  // Start the game when Shift is pressed
+            player1Score = 0;
+            player2Score = 0;
+            resetBall();  // Reset ball position at start of game
+        }
+    }
+    if (keyCode === 32) {  // Space key
+        if (gameOver && !showInstructions) {
+            showInstructions = true;  // Show instructions screen when Spacebar is pressed
+        } else if (!gameOver && showInstructions) {
+            showInstructions = false;  // Hide instructions screen when Spacebar is pressed for during the game
+        }
+    }
+
+    // Track key presses for movement
+    if (keyCode === 65) {  // A key (Player 1 move left)
+        isAKeyPressed = true;
+    }
+    if (keyCode === 68) {  // D key (Player 1 move right)
+        isDKeyPressed = true;
+    }
+    if (keyCode === 37) {  // Left arrow key (Player 2 move left)
+        isLeftArrowPressed = true;
+    }
+    if (keyCode === 39) {  // Right Arrow key (Player 2 move right)
+        isRightArrowPressed = true;
+    }
+}
+
+// Handle key releases to stop paddle movement
+function keyReleased() {
+    // Stop moving paddles when keys are released
+    if (keyCode === 65) {  // A key
+        isAKeyPressed = false;
+    }
+    if (keyCode === 68) {  // D key
+        isDKeyPressed = false;
+    }
+    if (keyCode === 37) {  // Left arrow key
+        isLeftArrowPressed = false;
+    }
+    if (keyCode === 39) {  // Right Arrow key
+        isRightArrowPressed = false;
+    }
+}
